@@ -1,11 +1,11 @@
-# 🏝️ Resort Management System
+# Resort Management System
 
 **Nhóm: Lâm Thành Niên – Tăng Đại Minh**  
 **Môn: Kiến trúc và Thiết kế Phần mềm (Lý thuyết)**
 
 ---
 
-## 📐 Kiến trúc hệ thống
+## Kiến trúc hệ thống
 
 ```
 ResortManagement/
@@ -39,7 +39,7 @@ ResortManagement/
 
 ---
 
-## 🛠️ Yêu cầu
+## Yêu cầu
 
 - **.NET 8 SDK** — https://dotnet.microsoft.com/download/dotnet/8.0
 - **SQL Server LocalDB** (đi kèm Visual Studio) hoặc SQL Server Express
@@ -47,7 +47,7 @@ ResortManagement/
 
 ---
 
-## 🚀 Hướng dẫn chạy
+## Hướng dẫn chạy
 
 ### Cách 1: Visual Studio 2022
 
@@ -79,7 +79,7 @@ Truy cập: `https://localhost:7100`
 
 ---
 
-## 🔐 Tài khoản mặc định
+## Tài khoản mặc định
 
 | Email | Mật khẩu | Vai trò |
 |---|---|---|
@@ -107,7 +107,7 @@ Truy cập: `https://localhost:7100`
 
 ---
 
-## 🧪 Unit Tests
+## Unit Tests
 
 ```bash
 cd ResortManagement
