@@ -1,0 +1,117 @@
+@model List<Resort.Model.Models.RepairRequest>
+@{
+    ViewData["Title"] = "Yêu cầu sửa chữa";
+    var roomMap = ViewBag.RoomMap as Dictionary<string,string> ?? new();
+}
+
+@section Breadcrumb {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" asp-area="">Dashboard</a></li>
+            <li class="breadcrumb-item active">Sửa chữa</li>
+        </ol>
+    </nav>
+}
+
+<div class="py-3">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="bi bi-tools me-2"></i>Yêu cầu sửa chữa</h4>
+        <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Tạo yêu cầu</a>
+    </div>
+
+    <!-- Status tabs -->
+    <div class="mb-3">
+        <div class="btn-group btn-group-sm">
+            <a asp-action="Index" class="btn @(ViewBag.FilterStatus == null ? "btn-primary" : "btn-outline-primary")">Tất cả</a>
+            <a asp-action="Index" asp-route-status="Pending"    class="btn @(ViewBag.FilterStatus == "Pending"    ? "btn-primary" : "btn-outline-primary")">Chờ xử lý</a>
+            <a asp-action="Index" asp-route-status="InProgress" class="btn @(ViewBag.FilterStatus == "InProgress" ? "btn-primary" : "btn-outline-primary")">Đang xử lý</a>
+            <a asp-action="Index" asp-route-status="Completed"  class="btn @(ViewBag.FilterStatus == "Completed"  ? "btn-primary" : "btn-outline-primary")">Hoàn thành</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã</th>
+                        <th>Phòng</th>
+                        <th>Mô tả</th>
+                        <th>Ưu tiên</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in Model)
+                    {
+                        var priorityClass = r.Priority switch {
+                            "Urgent" => "badge-urgent",
+                            "Normal" => "badge-normal",
+                            "Low"    => "badge-low",
+                            _        => "bg-secondary"
+                        };
+                        var priorityVi = r.Priority switch {
+                            "Urgent" => "Khẩn cấp",
+                            "Normal" => "Bình thường",
+                            "Low"    => "Thấp",
+                            _        => r.Priority
+                        };
+                        var statusVi = r.Status switch {
+                            "Pending"    => "Chờ xử lý",
+                            "InProgress" => "Đang xử lý",
+                            "Completed"  => "Hoàn thành",
+                            "Cancelled"  => "Đã hủy",
+                            _            => r.Status
+                        };
+                        var statusClass = r.Status switch {
+                            "Pending"    => "badge-pending",
+                            "InProgress" => "badge-inprogress",
+                            "Completed"  => "badge-completed",
+                            "Cancelled"  => "badge-cancelled",
+                            _            => "bg-secondary"
+                        };
+
+                        <tr>
+                            <td><span class="fw-medium">@r.Code</span></td>
+                            <td>@roomMap.GetValueOrDefault(r.RoomId, r.RoomId)</td>
+                            <td>@r.Description</td>
+                            <td><span class="badge @priorityClass">@priorityVi</span></td>
+                            <td><span class="badge @statusClass">@statusVi</span></td>
+                            <td>@r.CreatedDate.ToString("dd/MM/yyyy")</td>
+                            <td class="text-center">
+                                @if (r.Status == "Pending")
+                                {
+                                    <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@r.Id" />
+                                        <input type="hidden" name="status" value="InProgress" />
+                                        <button class="btn btn-sm btn-outline-warning me-1" title="Tiếp nhận">
+                                            <i class="bi bi-play"></i>
+                                        </button>
+                                    </form>
+                                }
+                                @if (r.Status == "InProgress")
+                                {
+                                    <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@r.Id" />
+                                        <input type="hidden" name="status" value="Completed" />
+                                        <button class="btn btn-sm btn-outline-success me-1" title="Hoàn thành">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="7" class="text-center text-muted py-4">Không có dữ liệu</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

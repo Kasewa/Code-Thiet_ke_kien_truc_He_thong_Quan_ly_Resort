@@ -1,0 +1,102 @@
+@{
+    ViewData["Title"] = "Báo cáo doanh thu";
+    int year = ViewBag.Year ?? DateTime.Now.Year;
+    var revenueValues = ViewBag.RevenueValues as List<decimal> ?? new List<decimal>();
+    var roomTypeLabels = ViewBag.RoomTypeLabels as List<string> ?? new List<string>();
+    var roomTypeCounts = ViewBag.RoomTypeCounts as List<int> ?? new List<int>();
+    decimal totalRevenue = ViewBag.TotalRevenue ?? 0m;
+}
+
+@section Breadcrumb {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" asp-area="">Dashboard</a></li>
+            <li class="breadcrumb-item active">Báo cáo</li>
+        </ol>
+    </nav>
+}
+
+<div class="py-3">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="bi bi-bar-chart-line me-2"></i>Báo cáo doanh thu năm @year</h4>
+        <form method="get" class="d-flex gap-2 align-items-center">
+            <label class="form-label mb-0 me-1 small">Năm:</label>
+            <select name="year" class="form-select form-select-sm" style="width:90px" onchange="this.form.submit()">
+                @for (int y = DateTime.Now.Year; y >= DateTime.Now.Year - 4; y--)
+                {
+                    <option value="@y" selected="@(y == year)">@y</option>
+                }
+            </select>
+        </form>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="icon-box bg-success bg-opacity-10">
+                        <i class="bi bi-cash-stack text-success"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Tổng doanh thu năm @year</div>
+                        <div class="fs-5 fw-bold text-success">@totalRevenue.ToString("N0") ₫</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-xl-8">
+            <div class="card">
+                <div class="card-header fw-semibold">Doanh thu theo tháng</div>
+                <div class="card-body"><canvas id="monthlyChart" height="100"></canvas></div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="card">
+                <div class="card-header fw-semibold">Phân bố loại phòng</div>
+                <div class="card-body"><canvas id="roomTypeChart"></canvas></div>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header fw-semibold">Chi tiết theo tháng</div>
+                <div class="card-body p-0">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead class="table-light">
+                            <tr><th>Tháng</th><th class="text-end">Doanh thu (VNĐ)</th></tr>
+                        </thead>
+                        <tbody>
+                            @for (int m = 1; m <= 12; m++)
+                            {
+                                var rev = m <= revenueValues.Count ? revenueValues[m - 1] : 0m;
+                                <tr>
+                                    <td>Tháng @m</td>
+                                    <td class="text-end @(rev > 0 ? "fw-medium" : "text-muted")">@rev.ToString("N0") ₫</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        const revenueData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(revenueValues));
+        const roomLabels  = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(roomTypeLabels));
+        const roomCounts  = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(roomTypeCounts));
+        new Chart(document.getElementById('monthlyChart'), { type:'bar',
+            data:{ labels:['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'],
+                   datasets:[{label:'Doanh thu',data:revenueData,backgroundColor:'rgba(25,135,84,0.7)',borderRadius:6}]},
+            options:{responsive:true,plugins:{legend:{display:false}},
+                     scales:{y:{ticks:{callback:v=>(v/1000000).toFixed(1)+'M'}}}}});
+        new Chart(document.getElementById('roomTypeChart'), { type:'doughnut',
+            data:{ labels:roomLabels, datasets:[{data:roomCounts,backgroundColor:['#0d6efd','#198754','#ffc107','#dc3545']}]},
+            options:{responsive:true,plugins:{legend:{position:'bottom'}}}});
+    </script>
+}

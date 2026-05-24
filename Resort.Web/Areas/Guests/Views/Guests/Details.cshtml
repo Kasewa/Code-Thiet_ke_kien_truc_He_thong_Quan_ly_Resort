@@ -1,0 +1,70 @@
+@model Resort.Model.Models.Guest
+@{
+    ViewData["Title"] = "Chi tiết khách hàng";
+}
+
+@section Breadcrumb {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" asp-area="">Dashboard</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Quản lý khách</a></li>
+            <li class="breadcrumb-item active">@Model.Code</li>
+        </ol>
+    </nav>
+}
+
+<div class="py-3">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="bi bi-person me-2"></i>@Model.FullName</h4>
+        <div class="d-flex gap-2">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-sm">
+                <i class="bi bi-pencil me-1"></i>Sửa
+            </a>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Quay lại
+            </a>
+        </div>
+    </div>
+
+    <div class="card" style="max-width:600px">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-4 text-muted">Mã khách</dt>
+                <dd class="col-8 fw-medium">@Model.Code</dd>
+
+                <dt class="col-4 text-muted">Họ và tên</dt>
+                <dd class="col-8">@Model.FullName</dd>
+
+                <dt class="col-4 text-muted">CCCD/Hộ chiếu</dt>
+                <dd class="col-8">@Model.IdCard</dd>
+
+                <dt class="col-4 text-muted">Quốc tịch</dt>
+                <dd class="col-8"><span class="badge bg-light text-dark border">@Model.Nationality</span></dd>
+
+                <dt class="col-4 text-muted">Giới tính</dt>
+                <dd class="col-8">@Model.Gender</dd>
+
+                <dt class="col-4 text-muted">Ngày sinh</dt>
+                <dd class="col-8">@(Model.DateOfBirth.HasValue ? Model.DateOfBirth.Value.ToString("dd/MM/yyyy") : "—")</dd>
+
+                <dt class="col-4 text-muted">Điện thoại</dt>
+                <dd class="col-8">@Model.Phone</dd>
+
+                <dt class="col-4 text-muted">Email</dt>
+                <dd class="col-8">@Model.Email</dd>
+
+                <dt class="col-4 text-muted">Địa chỉ</dt>
+                <dd class="col-8">@Model.Address</dd>
+
+                @if (!string.IsNullOrWhiteSpace(Model.Notes))
+                {
+                    <dt class="col-4 text-muted">Ghi chú</dt>
+                    <dd class="col-8">@Model.Notes</dd>
+                }
+
+                <dt class="col-4 text-muted">Ngày tạo</dt>
+                <dd class="col-8 text-muted small">@Model.CreatedDate.ToString("dd/MM/yyyy HH:mm") bởi @Model.CreatedBy</dd>
+            </dl>
+        </div>
+    </div>
+</div>

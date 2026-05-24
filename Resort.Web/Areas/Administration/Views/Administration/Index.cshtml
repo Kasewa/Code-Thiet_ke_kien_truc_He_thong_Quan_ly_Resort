@@ -1,0 +1,50 @@
+@model List<Resort.Model.Models.MasterDataKey>
+@{
+    ViewData["Title"] = "Quản trị hệ thống";
+}
+
+@section Breadcrumb {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" asp-area="">Dashboard</a></li>
+            <li class="breadcrumb-item active">Quản trị hệ thống</li>
+        </ol>
+    </nav>
+}
+
+<div class="py-3">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="bi bi-gear me-2"></i>Quản trị hệ thống</h4>
+        <form asp-action="RefreshCache" method="post">
+            @Html.AntiForgeryToken()
+            <button class="btn btn-outline-warning btn-sm">
+                <i class="bi bi-arrow-clockwise me-1"></i>Làm mới Cache
+            </button>
+        </form>
+    </div>
+
+    <h5 class="mb-3">Danh mục dữ liệu (Master Data)</h5>
+
+    <div class="row g-3">
+        @foreach (var key in Model)
+        {
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fw-bold mb-0">@key.Key</h6>
+                            <span class="badge @(key.IsActive ? "bg-success" : "bg-secondary")">
+                                @(key.IsActive ? "Hoạt động" : "Tắt")
+                            </span>
+                        </div>
+                        <p class="text-muted small mb-3">@key.Description</p>
+                        <a asp-action="MasterDataValues" asp-route-keyId="@key.Id"
+                           class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-list-ul me-1"></i>Xem giá trị
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

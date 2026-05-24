@@ -1,0 +1,96 @@
+@model List<Resort.Model.Models.Booking>
+@{
+    ViewData["Title"] = "Quản lý đặt phòng";
+    var guestMap  = ViewBag.GuestMap  as Dictionary<string,string> ?? new();
+    var roomMap   = ViewBag.RoomMap   as Dictionary<string,string> ?? new();
+}
+
+@section Breadcrumb {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" asp-area="">Dashboard</a></li>
+            <li class="breadcrumb-item active">Đặt phòng</li>
+        </ol>
+    </nav>
+}
+
+<div class="py-3">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="bi bi-calendar-check me-2"></i>Quản lý đặt phòng</h4>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>Đặt phòng mới
+        </a>
+    </div>
+
+    <!-- Status filter tabs -->
+    <div class="mb-3">
+        <div class="btn-group btn-group-sm" role="group">
+            <a asp-action="Index" class="btn @(ViewBag.FilterStatus == null ? "btn-primary" : "btn-outline-primary")">Tất cả</a>
+            <a asp-action="Index" asp-route-status="Pending"    class="btn @(ViewBag.FilterStatus == "Pending"    ? "btn-primary" : "btn-outline-primary")">Chờ xác nhận</a>
+            <a asp-action="Index" asp-route-status="Confirmed"  class="btn @(ViewBag.FilterStatus == "Confirmed"  ? "btn-primary" : "btn-outline-primary")">Đã xác nhận</a>
+            <a asp-action="Index" asp-route-status="CheckedIn"  class="btn @(ViewBag.FilterStatus == "CheckedIn"  ? "btn-primary" : "btn-outline-primary")">Đang ở</a>
+            <a asp-action="Index" asp-route-status="CheckedOut" class="btn @(ViewBag.FilterStatus == "CheckedOut" ? "btn-primary" : "btn-outline-primary")">Đã trả phòng</a>
+            <a asp-action="Index" asp-route-status="Cancelled"  class="btn @(ViewBag.FilterStatus == "Cancelled"  ? "btn-primary" : "btn-outline-primary")">Đã hủy</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã ĐP</th>
+                        <th>Khách hàng</th>
+                        <th>Phòng</th>
+                        <th>Check-in</th>
+                        <th>Check-out</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var b in Model)
+                    {
+                        var guest = guestMap.GetValueOrDefault(b.GuestId, b.GuestId);
+                        var room  = roomMap.GetValueOrDefault(b.RoomId,   b.RoomId);
+                        var badgeClass = b.Status switch {
+                            "Pending"    => "badge-pending",
+                            "Confirmed"  => "badge-confirmed",
+                            "CheckedIn"  => "badge-checkedin",
+                            "CheckedOut" => "badge-checkedout",
+                            "Cancelled"  => "badge-cancelled",
+                            _            => "bg-secondary"
+                        };
+                        var statusVi = b.Status switch {
+                            "Pending"    => "Chờ xác nhận",
+                            "Confirmed"  => "Đã xác nhận",
+                            "CheckedIn"  => "Đang ở",
+                            "CheckedOut" => "Đã trả phòng",
+                            "Cancelled"  => "Đã hủy",
+                            _            => b.Status
+                        };
+                        <tr>
+                            <td><span class="fw-medium">@b.Code</span></td>
+                            <td>@guest</td>
+                            <td>@room</td>
+                            <td>@b.CheckInDate.ToString("dd/MM/yyyy")</td>
+                            <td>@b.CheckOutDate.ToString("dd/MM/yyyy")</td>
+                            <td>@b.TotalAmount.ToString("N0") ₫</td>
+                            <td><span class="badge @badgeClass">@statusVi</span></td>
+                            <td class="text-center">
+                                <a asp-action="Details" asp-route-id="@b.Id" class="btn btn-sm btn-outline-info">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="8" class="text-center text-muted py-4">Không có dữ liệu</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

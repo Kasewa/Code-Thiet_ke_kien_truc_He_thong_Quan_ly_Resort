@@ -1,0 +1,81 @@
+@model Resort.Model.Models.Service
+@{
+    ViewData["Title"] = "Thêm dịch vụ";
+    var serviceTypes = ViewBag.ServiceTypes as List<string> ?? new List<string>();
+}
+
+@section Breadcrumb {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" asp-area="">Dashboard</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Dịch vụ</a></li>
+            <li class="breadcrumb-item active">Thêm mới</li>
+        </ol>
+    </nav>
+}
+
+<div class="py-3">
+    <div class="page-header">
+        <h4><i class="bi bi-plus-circle me-2"></i>Thêm dịch vụ mới</h4>
+    </div>
+
+    <div class="card" style="max-width:620px">
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label asp-for="Code" class="form-label">Mã DV <span class="text-danger">*</span></label>
+                        <input asp-for="Code" class="form-control" placeholder="DV001" />
+                        <span asp-validation-for="Code" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-8">
+                        <label asp-for="Name" class="form-label">Tên dịch vụ <span class="text-danger">*</span></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="ServiceType" class="form-label">Loại dịch vụ</label>
+                        <select asp-for="ServiceType" class="form-select">
+                            @foreach (var t in serviceTypes)
+                            {
+                                <option value="@t">@t</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="Price" class="form-label">Đơn giá (VNĐ)</label>
+                        <input asp-for="Price" class="form-control" type="number" min="0" />
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="Unit" class="form-label">Đơn vị</label>
+                        <input asp-for="Unit" class="form-control" placeholder="/lần" />
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Description" class="form-label">Mô tả</label>
+                        <textarea asp-for="Description" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check mt-2">
+                            <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
+                            <label asp-for="IsActive" class="form-check-label">Đang hoạt động</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-floppy me-1"></i>Lưu
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

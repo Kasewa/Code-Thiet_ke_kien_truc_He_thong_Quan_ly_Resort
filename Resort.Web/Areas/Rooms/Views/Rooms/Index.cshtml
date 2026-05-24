@@ -1,0 +1,127 @@
+@model List<Resort.Model.Models.Room>
+@{
+    ViewData["Title"] = "Quản lý phòng";
+    var roomTypes = ViewBag.RoomTypes as List<string> ?? new List<string>();
+    var roomStatuses = ViewBag.RoomStatuses as List<string> ?? new List<string>();
+}
+
+@section Breadcrumb {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" asp-area="">Dashboard</a></li>
+            <li class="breadcrumb-item active">Quản lý phòng</li>
+        </ol>
+    </nav>
+}
+
+<div class="py-3">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="bi bi-door-open me-2"></i>Quản lý phòng</h4>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i> Thêm phòng
+        </a>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="card mb-3">
+        <div class="card-body py-2">
+            <form method="get" class="row g-2 align-items-end">
+                <div class="col-auto">
+                    <label class="form-label small mb-1">Loại phòng</label>
+                    <select name="type" class="form-select form-select-sm">
+                        <option value="">-- Tất cả --</option>
+                        @foreach (var t in roomTypes)
+                        {
+                            <option value="@t" selected="@(ViewBag.FilterType == t)">@t</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <label class="form-label small mb-1">Trạng thái</label>
+                    <select name="status" class="form-select form-select-sm">
+                        <option value="">-- Tất cả --</option>
+                        @foreach (var s in roomStatuses)
+                        {
+                            <option value="@s" selected="@(ViewBag.FilterStatus == s)">@s</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-funnel me-1"></i>Lọc
+                    </button>
+                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary ms-1">Xóa lọc</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã phòng</th>
+                        <th>Tên phòng</th>
+                        <th>Loại</th>
+                        <th>Giá/đêm</th>
+                        <th>Sức chứa</th>
+                        <th>Trạng thái</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var room in Model)
+                    {
+                        <tr>
+                            <td><span class="fw-medium">@room.Code</span></td>
+                            <td>@room.Name</td>
+                            <td><span class="badge bg-secondary">@room.RoomType</span></td>
+                            <td>@room.PricePerNight.ToString("N0") ₫</td>
+                            <td><i class="bi bi-people me-1 text-muted"></i>@room.Capacity</td>
+                            <td>
+                                @{
+                                    var badgeClass = room.Status switch {
+                                        "Available"   => "badge-available",
+                                        "Occupied"    => "badge-occupied",
+                                        "Maintenance" => "badge-maintenance",
+                                        "Cleaning"    => "badge-cleaning",
+                                        _             => "bg-secondary"
+                                    };
+                                    var statusVi = room.Status switch {
+                                        "Available"   => "Trống",
+                                        "Occupied"    => "Có khách",
+                                        "Maintenance" => "Bảo trì",
+                                        "Cleaning"    => "Dọn phòng",
+                                        _             => room.Status
+                                    };
+                                }
+                                <span class="badge @badgeClass">@statusVi</span>
+                            </td>
+                            <td class="text-center">
+                                <a asp-action="Details" asp-route-id="@room.Id" class="btn btn-sm btn-outline-info me-1" title="Chi tiết">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@room.Id" class="btn btn-sm btn-outline-warning me-1" title="Sửa">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form asp-action="Delete" asp-route-id="@room.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                            onclick="confirmDelete(this.closest('form'), 'Xóa phòng @room.Code?')" title="Xóa">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="7" class="text-center text-muted py-4">Không có dữ liệu</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

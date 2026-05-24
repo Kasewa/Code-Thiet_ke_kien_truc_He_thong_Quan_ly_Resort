@@ -1,0 +1,108 @@
+@model Resort.Model.Models.Room
+@{
+    ViewData["Title"] = "Chi tiết phòng";
+    var statusVi = Model.Status switch {
+        "Available"   => "Trống",
+        "Occupied"    => "Có khách",
+        "Maintenance" => "Bảo trì",
+        "Cleaning"    => "Dọn phòng",
+        _             => Model.Status
+    };
+    var badgeClass = Model.Status switch {
+        "Available"   => "badge-available",
+        "Occupied"    => "badge-occupied",
+        "Maintenance" => "badge-maintenance",
+        "Cleaning"    => "badge-cleaning",
+        _             => "bg-secondary"
+    };
+}
+
+@section Breadcrumb {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" asp-area="">Dashboard</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Quản lý phòng</a></li>
+            <li class="breadcrumb-item active">@Model.Code</li>
+        </ol>
+    </nav>
+}
+
+<div class="py-3">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="bi bi-door-open me-2"></i>@Model.Code — @Model.Name</h4>
+        <div class="d-flex gap-2">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-sm">
+                <i class="bi bi-pencil me-1"></i>Sửa
+            </a>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Quay lại
+            </a>
+        </div>
+    </div>
+
+    <div class="card" style="max-width:580px">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-5 text-muted">Mã phòng</dt>
+                <dd class="col-7 fw-medium">@Model.Code</dd>
+
+                <dt class="col-5 text-muted">Tên phòng</dt>
+                <dd class="col-7">@Model.Name</dd>
+
+                <dt class="col-5 text-muted">Loại phòng</dt>
+                <dd class="col-7"><span class="badge bg-secondary">@Model.RoomType</span></dd>
+
+                <dt class="col-5 text-muted">Tầng</dt>
+                <dd class="col-7">@Model.Floor</dd>
+
+                <dt class="col-5 text-muted">Sức chứa</dt>
+                <dd class="col-7"><i class="bi bi-people me-1 text-muted"></i>@Model.Capacity người</dd>
+
+                <dt class="col-5 text-muted">Giá/đêm</dt>
+                <dd class="col-7 fw-bold text-primary">@Model.PricePerNight.ToString("N0") ₫</dd>
+
+                <dt class="col-5 text-muted">Trạng thái</dt>
+                <dd class="col-7"><span class="badge @badgeClass">@statusVi</span></dd>
+
+                @if (!string.IsNullOrWhiteSpace(Model.Amenities))
+                {
+                    <dt class="col-5 text-muted">Tiện nghi</dt>
+                    <dd class="col-7">
+                        @foreach (var a in Model.Amenities.Split(','))
+                        {
+                            <span class="badge bg-light text-dark border me-1">@a.Trim()</span>
+                        }
+                    </dd>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Model.Description))
+                {
+                    <dt class="col-5 text-muted">Mô tả</dt>
+                    <dd class="col-7">@Model.Description</dd>
+                }
+
+                <dt class="col-5 text-muted">Ngày tạo</dt>
+                <dd class="col-7 text-muted small">@Model.CreatedDate.ToString("dd/MM/yyyy HH:mm") bởi @Model.CreatedBy</dd>
+            </dl>
+        </div>
+    </div>
+
+    <!-- Quick status update -->
+    <div class="card mt-3" style="max-width:580px">
+        <div class="card-header fw-semibold">Cập nhật trạng thái nhanh</div>
+        <div class="card-body d-flex gap-2 flex-wrap">
+            @foreach (var s in new[] { ("Available","Trống","btn-success"), ("Cleaning","Dọn phòng","btn-warning"), ("Maintenance","Bảo trì","btn-danger") })
+            {
+                if (Model.Status != s.Item1)
+                {
+                    <form asp-action="UpdateStatus" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <input type="hidden" name="status" value="@s.Item1" />
+                        <button class="btn btn-sm @s.Item3">@s.Item2</button>
+                    </form>
+                }
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,100 @@
+@model List<Resort.Model.Models.Guest>
+@{
+    ViewData["Title"] = "Quản lý khách";
+    var nationalities = ViewBag.Nationalities as List<string> ?? new List<string>();
+}
+
+@section Breadcrumb {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" asp-area="">Dashboard</a></li>
+            <li class="breadcrumb-item active">Quản lý khách</li>
+        </ol>
+    </nav>
+}
+
+<div class="py-3">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="bi bi-people me-2"></i>Quản lý khách hàng</h4>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>Thêm khách
+        </a>
+    </div>
+
+    <!-- Search/filter -->
+    <div class="card mb-3">
+        <div class="card-body py-2">
+            <form method="get" class="row g-2 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label small mb-1">Tìm kiếm</label>
+                    <input name="search" value="@ViewBag.Search" class="form-control form-control-sm"
+                           placeholder="Tên, CCCD, SĐT, email..." />
+                </div>
+                <div class="col-auto">
+                    <label class="form-label small mb-1">Quốc tịch</label>
+                    <select name="nationality" class="form-select form-select-sm">
+                        <option value="">-- Tất cả --</option>
+                        @foreach (var n in nationalities)
+                        {
+                            <option value="@n" selected="@(ViewBag.FilterNationality == n)">@n</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-search me-1"></i>Tìm
+                    </button>
+                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary ms-1">Xóa lọc</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã KH</th>
+                        <th>Họ tên</th>
+                        <th>CCCD/Hộ chiếu</th>
+                        <th>Quốc tịch</th>
+                        <th>Điện thoại</th>
+                        <th>Email</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var g in Model)
+                    {
+                        <tr>
+                            <td><span class="fw-medium">@g.Code</span></td>
+                            <td>@g.FullName</td>
+                            <td>@g.IdCard</td>
+                            <td>
+                                <span class="badge bg-light text-dark border">@g.Nationality</span>
+                            </td>
+                            <td>@g.Phone</td>
+                            <td>@g.Email</td>
+                            <td class="text-center">
+                                <a asp-action="Details" asp-route-id="@g.Id" class="btn btn-sm btn-outline-info me-1"><i class="bi bi-eye"></i></a>
+                                <a asp-action="Edit" asp-route-id="@g.Id" class="btn btn-sm btn-outline-warning me-1"><i class="bi bi-pencil"></i></a>
+                                <form asp-action="Delete" asp-route-id="@g.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                            onclick="confirmDelete(this.closest('form'), 'Xóa khách @g.FullName?')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="7" class="text-center text-muted py-4">Không có dữ liệu</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

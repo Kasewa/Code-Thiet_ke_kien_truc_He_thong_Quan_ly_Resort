@@ -1,0 +1,101 @@
+@model List<Resort.Model.Models.Notification>
+@{
+    ViewData["Title"] = "Thông báo";
+}
+
+@section Breadcrumb {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" asp-area="">Dashboard</a></li>
+            <li class="breadcrumb-item active">Thông báo</li>
+        </ol>
+    </nav>
+}
+
+<div class="py-3">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="bi bi-bell me-2"></i>Thông báo</h4>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#sendModal">
+                <i class="bi bi-send me-1"></i>Gửi thông báo
+            </button>
+            <form asp-action="MarkAllRead" method="post">
+                @Html.AntiForgeryToken()
+                <button class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-check-all me-1"></i>Đánh dấu tất cả đã đọc
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="list-group">
+        @foreach (var n in Model)
+        {
+            <div class="list-group-item list-group-item-action @(!n.IsRead ? "list-group-item-light border-start border-4 border-primary" : "")">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            @if (!n.IsRead)
+                            {
+                                <span class="badge bg-primary">Mới</span>
+                            }
+                            <span class="badge bg-light text-dark border">@n.NotificationType</span>
+                            <strong>@n.Title</strong>
+                        </div>
+                        <p class="mb-1 text-muted">@n.Content</p>
+                        <small class="text-muted">@n.CreatedDate.ToString("dd/MM/yyyy HH:mm")</small>
+                    </div>
+                    @if (!n.IsRead)
+                    {
+                        <form asp-action="MarkRead" asp-route-id="@n.Id" method="post" class="ms-2">
+                            @Html.AntiForgeryToken()
+                            <button class="btn btn-sm btn-outline-secondary" title="Đánh dấu đã đọc">
+                                <i class="bi bi-check"></i>
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+        }
+        @if (!Model.Any())
+        {
+            <div class="list-group-item text-center text-muted py-4">
+                <i class="bi bi-bell-slash fs-3 d-block mb-2"></i>
+                Không có thông báo nào
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Send modal -->
+<div class="modal fade" id="sendModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Gửi thông báo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="Send" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tiêu đề <span class="text-danger">*</span></label>
+                        <input name="title" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nội dung</label>
+                        <textarea name="content" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Gửi đến (để trống = gửi tất cả)</label>
+                        <input name="recipientId" class="form-control" placeholder="User ID cụ thể..." />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-send me-1"></i>Gửi</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

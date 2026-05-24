@@ -1,0 +1,210 @@
+@model Resort.Web.Areas.Bookings.Models.BookingDetailsViewModel
+@{
+    ViewData["Title"] = "Chi tiết đặt phòng";
+    var b = Model.Booking;
+    var statusVi = b.Status switch {
+        "Pending"    => "Chờ xác nhận",
+        "Confirmed"  => "Đã xác nhận",
+        "CheckedIn"  => "Đang ở",
+        "CheckedOut" => "Đã trả phòng",
+        "Cancelled"  => "Đã hủy",
+        _            => b.Status
+    };
+}
+
+@section Breadcrumb {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" asp-area="">Dashboard</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Đặt phòng</a></li>
+            <li class="breadcrumb-item active">@b.Code</li>
+        </ol>
+    </nav>
+}
+
+<div class="py-3">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="bi bi-receipt me-2"></i>@b.Code</h4>
+        <div class="d-flex gap-2">
+            @if (b.Status == "Pending" || b.Status == "Confirmed")
+            {
+                <form asp-action="CheckIn" asp-route-id="@b.Id" method="post">
+                    @Html.AntiForgeryToken()
+                    <button class="btn btn-success"><i class="bi bi-box-arrow-in-right me-1"></i>Check-in</button>
+                </form>
+                <form asp-action="Cancel" asp-route-id="@b.Id" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="button" class="btn btn-outline-danger"
+                            onclick="confirmDelete(this.closest('form'), 'Hủy đặt phòng này?')">
+                        <i class="bi bi-x-circle me-1"></i>Hủy
+                    </button>
+                </form>
+            }
+            @if (b.Status == "CheckedIn")
+            {
+                <form asp-action="CheckOut" asp-route-id="@b.Id" method="post">
+                    @Html.AntiForgeryToken()
+                    <button class="btn btn-warning"><i class="bi bi-box-arrow-right me-1"></i>Check-out</button>
+                </form>
+            }
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <!-- Booking info -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header fw-semibold"><i class="bi bi-info-circle me-2"></i>Thông tin đặt phòng</div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-5 text-muted">Trạng thái</dt>
+                        <dd class="col-7"><span class="badge badge-@b.Status.ToLower()">@statusVi</span></dd>
+                        <dt class="col-5 text-muted">Check-in</dt>
+                        <dd class="col-7">@b.CheckInDate.ToString("dd/MM/yyyy")</dd>
+                        <dt class="col-5 text-muted">Check-out</dt>
+                        <dd class="col-7">@b.CheckOutDate.ToString("dd/MM/yyyy")</dd>
+                        <dt class="col-5 text-muted">Số đêm</dt>
+                        <dd class="col-7">@((b.CheckOutDate - b.CheckInDate).Days) đêm</dd>
+                        <dt class="col-5 text-muted">Số khách</dt>
+                        <dd class="col-7">@b.NumberOfGuests người</dd>
+                        <dt class="col-5 text-muted">Đặt cọc</dt>
+                        <dd class="col-7">@b.Deposit.ToString("N0") ₫</dd>
+                        @if (b.Notes is { Length: > 0 })
+                        {
+                            <dt class="col-5 text-muted">Ghi chú</dt>
+                            <dd class="col-7">@b.Notes</dd>
+                        }
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guest + Room info -->
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header fw-semibold"><i class="bi bi-person me-2"></i>Khách hàng</div>
+                <div class="card-body">
+                    @if (Model.Guest is not null)
+                    {
+                        <dl class="row mb-0">
+                            <dt class="col-5 text-muted">Họ tên</dt><dd class="col-7">@Model.Guest.FullName</dd>
+                            <dt class="col-5 text-muted">CCCD</dt><dd class="col-7">@Model.Guest.IdCard</dd>
+                            <dt class="col-5 text-muted">Điện thoại</dt><dd class="col-7">@Model.Guest.Phone</dd>
+                        </dl>
+                    }
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header fw-semibold"><i class="bi bi-door-open me-2"></i>Phòng</div>
+                <div class="card-body">
+                    @if (Model.Room is not null)
+                    {
+                        <dl class="row mb-0">
+                            <dt class="col-5 text-muted">Mã phòng</dt><dd class="col-7">@Model.Room.Code</dd>
+                            <dt class="col-5 text-muted">Loại</dt><dd class="col-7">@Model.Room.RoomType</dd>
+                            <dt class="col-5 text-muted">Giá/đêm</dt><dd class="col-7">@Model.Room.PricePerNight.ToString("N0") ₫</dd>
+                        </dl>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Services used -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-cup-straw me-2"></i>Dịch vụ đã dùng</span>
+                    @if (b.Status == "CheckedIn")
+                    {
+                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addServiceModal">
+                            <i class="bi bi-plus-lg me-1"></i>Thêm dịch vụ
+                        </button>
+                    }
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Dịch vụ</th>
+                                <th>Ngày</th>
+                                <th class="text-end">Đơn giá</th>
+                                <th class="text-center">SL</th>
+                                <th class="text-end">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var serviceMap = ViewBag.ServiceMap as Dictionary<string,string> ?? new Dictionary<string,string>();
+                            }
+                            @foreach (var s in Model.BookingServices)
+                            {
+                                <tr>
+                                    <td>@serviceMap.GetValueOrDefault(s.ServiceId, s.ServiceId)</td>
+                                    <td>@s.ServiceDate.ToString("dd/MM/yyyy")</td>
+                                    <td class="text-end">@s.UnitPrice.ToString("N0") ₫</td>
+                                    <td class="text-center">@s.Quantity</td>
+                                    <td class="text-end">@s.TotalPrice.ToString("N0") ₫</td>
+                                </tr>
+                            }
+                            @if (!Model.BookingServices.Any())
+                            {
+                                <tr><td colspan="5" class="text-center text-muted py-2">Chưa có dịch vụ</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Invoice totals -->
+                <div class="card-footer">
+                    <div class="d-flex justify-content-end">
+                        <table class="text-end" style="min-width:260px">
+                            <tr><td class="text-muted pe-3">Tiền phòng:</td><td class="fw-medium">@Model.RoomTotal.ToString("N0") ₫</td></tr>
+                            <tr><td class="text-muted pe-3">Dịch vụ:</td><td class="fw-medium">@Model.ServicesTotal.ToString("N0") ₫</td></tr>
+                            <tr class="border-top">
+                                <td class="text-muted pe-3 pt-2"><strong>Tổng cộng:</strong></td>
+                                <td class="fw-bold text-primary pt-2 fs-5">@Model.GrandTotal.ToString("N0") ₫</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Service Modal -->
+@if (b.Status == "CheckedIn")
+{
+    <div class="modal fade" id="addServiceModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Thêm dịch vụ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form asp-action="AddService" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="bookingId" value="@b.Id" />
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Dịch vụ</label>
+                            <select name="serviceId" class="form-select">
+                                @foreach (var svc in Model.AvailableServices)
+                                {
+                                    <option value="@svc.Id">@svc.Name — @svc.Price.ToString("N0") ₫/@svc.Unit</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Số lượng</label>
+                            <input name="quantity" type="number" min="1" value="1" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Thêm</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}

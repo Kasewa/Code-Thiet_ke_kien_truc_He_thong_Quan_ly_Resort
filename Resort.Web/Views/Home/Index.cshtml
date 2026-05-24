@@ -1,0 +1,283 @@
+@model Resort.Web.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+@section Breadcrumb {
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-primary"><i class="bi bi-house-door"></i> Trang chủ</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+    </ol>
+}
+
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <div>
+        <h3 class="fw-bold mb-1 text-dark">Tổng quan</h3>
+        <p class="text-muted mb-0">Theo dõi trạng thái và hiệu suất hoạt động của resort trong ngày.</p>
+    </div>
+    <div class="d-none d-sm-block">
+        <div class="bg-white border rounded-pill px-3 py-2 d-inline-flex align-items-center shadow-sm">
+            <i class="bi bi-calendar3 text-primary me-2"></i>
+            <span class="text-dark fw-medium small">@DateTime.Now.ToString("dd/MM/yyyy")</span>
+        </div>
+    </div>
+</div>
+
+<div class="py-2">
+    <!-- Stat Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card stat-card h-100">
+                <div class="card-body p-4 d-flex align-items-center gap-3">
+                    <div class="icon-box" style="background-color: #c7d2fe; color: #3730a3;">
+                        <i class="bi bi-door-open-fill"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase mb-1" style="font-size: 0.7rem; letter-spacing: 0.05em;">Tổng phòng</div>
+                        <div class="fs-3 fw-bold text-dark lh-1">@Model.TotalRooms</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card stat-card h-100">
+                <div class="card-body p-4 d-flex align-items-center gap-3">
+                    <div class="icon-box" style="background-color: #bbf7d0; color: #166534;">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase mb-1" style="font-size: 0.7rem; letter-spacing: 0.05em;">Phòng trống</div>
+                        <div class="fs-3 fw-bold text-success lh-1">@Model.AvailableRooms</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card stat-card h-100">
+                <div class="card-body p-4 d-flex align-items-center gap-3">
+                    <div class="icon-box" style="background-color: #bfdbfe; color: #1e40af;">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase mb-1" style="font-size: 0.7rem; letter-spacing: 0.05em;">Đang có khách</div>
+                        <div class="fs-3 fw-bold text-primary lh-1">@Model.OccupiedRooms</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card stat-card h-100">
+                <div class="card-body p-4 d-flex align-items-center gap-3">
+                    <div class="icon-box" style="background-color: #fde68a; color: #92400e;">
+                        <i class="bi bi-currency-dollar"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase mb-1" style="font-size: 0.7rem; letter-spacing: 0.05em;">Doanh thu tháng</div>
+                        <div class="fs-4 fw-bold lh-1" style="color: #b45309 !important;">@Model.MonthlyRevenue.ToString("N0") ₫</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Second row -->
+    <div class="row g-4 mb-4">
+        <div class="col-sm-4">
+            <div class="card stat-card h-100">
+                <div class="card-body p-4 d-flex align-items-center gap-3">
+                    <div class="icon-box" style="background-color: #e5e7eb; color: #1f2937;">
+                        <i class="bi bi-box-arrow-in-right"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase mb-1" style="font-size: 0.7rem; letter-spacing: 0.05em;">Check-in hôm nay</div>
+                        <div class="fs-3 fw-bold text-dark lh-1">@Model.TodayCheckIns</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card stat-card h-100">
+                <div class="card-body p-4 d-flex align-items-center gap-3">
+                    <div class="icon-box" style="background-color: #fca5a5; color: #991b1b;">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase mb-1" style="font-size: 0.7rem; letter-spacing: 0.05em;">Check-out hôm nay</div>
+                        <div class="fs-3 fw-bold text-danger lh-1">@Model.TodayCheckOuts</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card stat-card h-100">
+                <div class="card-body p-4 d-flex align-items-center gap-3">
+                    <div class="icon-box" style="background-color: #ddd6fe; color: #5b21b6;">
+                        <i class="bi bi-percent"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase mb-1" style="font-size: 0.7rem; letter-spacing: 0.05em;">Tỉ lệ lấp đầy</div>
+                        <div class="fs-3 fw-bold text-dark lh-1">@Model.OccupancyRate%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart + Today lists -->
+    <div class="row g-4">
+        <div class="col-xl-8">
+            <div class="card stat-card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center pt-3 pb-3">
+                    <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-bar-chart-fill me-2 text-primary"></i>Doanh thu năm @DateTime.Now.Year</h6>
+                </div>
+                <div class="card-body p-4">
+                    <canvas id="revenueChart" style="max-height: 350px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="card stat-card mb-4">
+                <div class="card-header pt-3 pb-3">
+                    <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-box-arrow-in-right text-success me-2"></i>Sắp check-in</h6>
+                </div>
+                <ul class="list-group list-group-flush rounded-bottom-4">
+                    @if (!Model.RecentCheckIns.Any())
+                    {
+                        <li class="list-group-item p-4 text-muted small text-center bg-transparent">
+                            <i class="bi bi-cup-hot d-block fs-3 mb-2 text-secondary opacity-50"></i>
+                            Không có khách check-in hôm nay
+                        </li>
+                    }
+                    @foreach (var b in Model.RecentCheckIns)
+                    {
+                        <li class="list-group-item p-3 d-flex justify-content-between align-items-center bg-transparent border-bottom border-light">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex justify-content-center align-items-center me-3" style="width: 36px; height: 36px;">
+                                    <i class="bi bi-person-fill small"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-semibold text-dark">@b.Code</h6>
+                                    <small class="text-muted"><i class="bi bi-door-open me-1"></i>Phòng @b.RoomId</small>
+                                </div>
+                            </div>
+                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1 fw-medium border border-success border-opacity-25" style="font-size: 0.7rem;">Sắp tới</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+            <div class="card stat-card">
+                <div class="card-header pt-3 pb-3">
+                    <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-box-arrow-right text-danger me-2"></i>Sắp check-out</h6>
+                </div>
+                <ul class="list-group list-group-flush rounded-bottom-4">
+                    @if (!Model.RecentCheckOuts.Any())
+                    {
+                        <li class="list-group-item p-4 text-muted small text-center bg-transparent">
+                            <i class="bi bi-cup-hot d-block fs-3 mb-2 text-secondary opacity-50"></i>
+                            Không có khách check-out hôm nay
+                        </li>
+                    }
+                    @foreach (var b in Model.RecentCheckOuts)
+                    {
+                        <li class="list-group-item p-3 d-flex justify-content-between align-items-center bg-transparent border-bottom border-light">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex justify-content-center align-items-center me-3" style="width: 36px; height: 36px;">
+                                    <i class="bi bi-person-fill small"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-semibold text-dark">@b.Code</h6>
+                                    <small class="text-muted"><i class="bi bi-door-open me-1"></i>Phòng @b.RoomId</small>
+                                </div>
+                            </div>
+                            <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-2 py-1 fw-medium border border-danger border-opacity-25" style="font-size: 0.7rem;">Sắp đi</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const canvas = document.getElementById('revenueChart');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            // Tạo gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(79, 70, 229, 0.85)');
+            gradient.addColorStop(1, 'rgba(79, 70, 229, 0.1)');
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
+                    datasets: [{
+                        label: 'Doanh thu',
+                        data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.YearlyRevenue)),
+                        backgroundColor: gradient,
+                        borderRadius: 6,
+                        borderWidth: 0,
+                        barPercentage: 0.6,
+                        hoverBackgroundColor: 'rgba(67, 56, 202, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1e293b',
+                            padding: 12,
+                            titleFont: { family: 'Inter', size: 14, weight: '600' },
+                            bodyFont: { family: 'Inter', size: 13 },
+                            cornerRadius: 8,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(226, 232, 240, 0.6)',
+                                drawBorder: false,
+                            },
+                            ticks: {
+                                font: { family: 'Inter', size: 12 },
+                                color: '#64748b',
+                                callback: v => {
+                                    if(v >= 1000000000) return (v / 1000000000).toFixed(1) + ' Tỷ';
+                                    if(v >= 1000000) return (v / 1000000).toFixed(1) + ' Tr';
+                                    return v;
+                                }
+                            }
+                        },
+                        x: {
+                            grid: { display: false, drawBorder: false },
+                            ticks: {
+                                font: { family: 'Inter', size: 12, weight: '500' },
+                                color: '#64748b'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}

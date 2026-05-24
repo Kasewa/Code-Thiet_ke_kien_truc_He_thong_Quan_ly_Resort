@@ -1,0 +1,96 @@
+@model Resort.Model.Models.Room
+@{
+    ViewData["Title"] = "Sửa thông tin phòng";
+    var roomTypes = ViewBag.RoomTypes as List<string> ?? new List<string>();
+    var roomStatuses = ViewBag.RoomStatuses as List<string> ?? new List<string>();
+}
+
+@section Breadcrumb {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" asp-area="">Dashboard</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Quản lý phòng</a></li>
+            <li class="breadcrumb-item active">Sửa: @Model.Code</li>
+        </ol>
+    </nav>
+}
+
+<div class="py-3">
+    <div class="page-header">
+        <h4><i class="bi bi-pencil-square me-2"></i>Sửa phòng: @Model.Code</h4>
+    </div>
+
+    <div class="card" style="max-width:680px">
+        <div class="card-body">
+            <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="CreatedBy" />
+                <input type="hidden" asp-for="CreatedDate" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label asp-for="Code" class="form-label">Mã phòng <span class="text-danger">*</span></label>
+                        <input asp-for="Code" class="form-control" />
+                        <span asp-validation-for="Code" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-8">
+                        <label asp-for="Name" class="form-label">Tên phòng <span class="text-danger">*</span></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="RoomType" class="form-label">Loại phòng</label>
+                        <select asp-for="RoomType" class="form-select">
+                            @foreach (var t in roomTypes)
+                            {
+                                <option value="@t">@t</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Status" class="form-label">Trạng thái</label>
+                        <select asp-for="Status" class="form-select">
+                            @foreach (var s in roomStatuses)
+                            {
+                                <option value="@s">@s</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="PricePerNight" class="form-label">Giá/đêm (VNĐ)</label>
+                        <input asp-for="PricePerNight" class="form-control" type="number" min="0" />
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="Capacity" class="form-label">Sức chứa</label>
+                        <input asp-for="Capacity" class="form-control" type="number" min="1" />
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="Floor" class="form-label">Tầng</label>
+                        <input asp-for="Floor" class="form-control" />
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Amenities" class="form-label">Tiện nghi</label>
+                        <input asp-for="Amenities" class="form-control" />
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Description" class="form-label">Mô tả</label>
+                        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-floppy me-1"></i>Cập nhật
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

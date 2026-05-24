@@ -1,0 +1,79 @@
+@model Resort.Model.Models.RepairRequest
+@{
+    ViewData["Title"] = "Tạo yêu cầu sửa chữa";
+    var rooms      = ViewBag.Rooms      as List<Resort.Model.Models.Room> ?? new List<Resort.Model.Models.Room>();
+    var priorities = ViewBag.Priorities as List<string>                   ?? new List<string>();
+}
+
+@section Breadcrumb {
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" asp-area="">Dashboard</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Sửa chữa</a></li>
+            <li class="breadcrumb-item active">Tạo mới</li>
+        </ol>
+    </nav>
+}
+
+<div class="py-3">
+    <div class="page-header">
+        <h4><i class="bi bi-tools me-2"></i>Tạo yêu cầu sửa chữa</h4>
+    </div>
+
+    <div class="card" style="max-width:620px">
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="row g-3">
+                    <div class="col-md-5">
+                        <label asp-for="Code" class="form-label">Mã yêu cầu <span class="text-danger">*</span></label>
+                        <input asp-for="Code" class="form-control" placeholder="SC001" />
+                        <span asp-validation-for="Code" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-7">
+                        <label asp-for="RoomId" class="form-label">Phòng <span class="text-danger">*</span></label>
+                        <select asp-for="RoomId" class="form-select">
+                            <option value="">-- Chọn phòng --</option>
+                            @foreach (var r in rooms)
+                            {
+                                <option value="@r.Id">@r.Code — @r.Name</option>
+                            }
+                        </select>
+                        <span asp-validation-for="RoomId" class="text-danger small"></span>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Description" class="form-label">Mô tả sự cố <span class="text-danger">*</span></label>
+                        <textarea asp-for="Description" class="form-control" rows="3" placeholder="Mô tả vấn đề cần sửa chữa..."></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Priority" class="form-label">Mức độ ưu tiên</label>
+                        <select asp-for="Priority" class="form-select">
+                            @foreach (var p in priorities)
+                            {
+                                <option value="@p">@(p == "Urgent" ? "Khẩn cấp" : p == "Normal" ? "Bình thường" : "Thấp")</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Notes" class="form-label">Ghi chú thêm</label>
+                        <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-floppy me-1"></i>Tạo yêu cầu
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

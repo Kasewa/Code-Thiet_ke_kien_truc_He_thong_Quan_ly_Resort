@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Resort TML</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+    <!-- Custom -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <!-- Sidebar -->
+    <div class="d-flex">
+        <nav id="sidebar" class="sidebar d-flex flex-column flex-shrink-0 p-3">
+            <a href="/" class="d-flex align-items-center mb-4 mt-2 me-md-auto text-decoration-none">
+                <div class="bg-primary text-white rounded p-2 me-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                    <i class="bi bi-building fs-5"></i>
+                </div>
+                <span class="fs-5 brand">Resort TML</span>
+            </a>
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li class="nav-item">
+                    <a asp-controller="Home" asp-action="Index" asp-area=""
+                       class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
+                        <i class="bi bi-grid-1x2 me-2"></i> <span>Dashboard</span>
+                    </a>
+                </li>
+
+                <div class="text-uppercase text-muted fw-bold small mt-3 mb-2 px-3" style="font-size: 0.7rem; letter-spacing: 0.05em;">Quản lý</div>
+
+                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                {
+                    <li class="nav-item">
+                        <a asp-area="Rooms" asp-controller="Rooms" asp-action="Index"
+                           class="nav-link @(ViewContext.RouteData.Values["area"]?.ToString() == "Rooms" ? "active" : "")">
+                            <i class="bi bi-door-open me-2"></i> <span>Phòng</span>
+                        </a>
+                    </li>
+                }
+
+                @if (User.IsInRole("Admin") || User.IsInRole("Manager") || User.IsInRole("Receptionist"))
+                {
+                    <li class="nav-item">
+                        <a asp-area="Guests" asp-controller="Guests" asp-action="Index"
+                           class="nav-link @(ViewContext.RouteData.Values["area"]?.ToString() == "Guests" ? "active" : "")">
+                            <i class="bi bi-people me-2"></i> <span>Khách hàng</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-area="Bookings" asp-controller="Bookings" asp-action="Index"
+                           class="nav-link @(ViewContext.RouteData.Values["area"]?.ToString() == "Bookings" ? "active" : "")">
+                            <i class="bi bi-calendar2-check me-2"></i> <span>Đặt phòng</span>
+                        </a>
+                    </li>
+                }
+
+                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                {
+                    <li class="nav-item">
+                        <a asp-area="Services" asp-controller="Services" asp-action="Index"
+                           class="nav-link @(ViewContext.RouteData.Values["area"]?.ToString() == "Services" ? "active" : "")">
+                            <i class="bi bi-cup-straw me-2"></i> <span>Dịch vụ</span>
+                        </a>
+                    </li>
+                }
+
+                @if (User.IsInRole("Admin") || User.IsInRole("Manager") || User.IsInRole("Technician"))
+                {
+                    <li class="nav-item">
+                        <a asp-area="Repairs" asp-controller="Repairs" asp-action="Index"
+                           class="nav-link @(ViewContext.RouteData.Values["area"]?.ToString() == "Repairs" ? "active" : "")">
+                            <i class="bi bi-wrench-adjustable me-2"></i> <span>Sửa chữa</span>
+                        </a>
+                    </li>
+                }
+
+                <div class="text-uppercase text-muted fw-bold small mt-3 mb-2 px-3" style="font-size: 0.7rem; letter-spacing: 0.05em;">Hệ thống</div>
+
+                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                {
+                    <li class="nav-item">
+                        <a asp-area="Staff" asp-controller="Staff" asp-action="Index"
+                           class="nav-link @(ViewContext.RouteData.Values["area"]?.ToString() == "Staff" ? "active" : "")">
+                            <i class="bi bi-person-badge me-2"></i> <span>Nhân viên</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-area="Reports" asp-controller="Reports" asp-action="Index"
+                           class="nav-link @(ViewContext.RouteData.Values["area"]?.ToString() == "Reports" ? "active" : "")">
+                            <i class="bi bi-pie-chart me-2"></i> <span>Báo cáo</span>
+                        </a>
+                    </li>
+                }
+
+                <li class="nav-item">
+                    <a asp-area="Notifications" asp-controller="Notifications" asp-action="Index"
+                       class="nav-link @(ViewContext.RouteData.Values["area"]?.ToString() == "Notifications" ? "active" : "")">
+                        <i class="bi bi-bell me-2"></i> <span>Thông báo</span>
+                        <span id="notif-badge" class="badge rounded-pill bg-danger ms-auto d-none">0</span>
+                    </a>
+                </li>
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <li class="nav-item">
+                        <a asp-area="Administration" asp-controller="Administration" asp-action="Index"
+                           class="nav-link @(ViewContext.RouteData.Values["area"]?.ToString() == "Administration" ? "active" : "")">
+                            <i class="bi bi-gear me-2"></i> <span>Cấu hình</span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+
+        <!-- Main content -->
+        <div class="main-content flex-grow-1 w-100 overflow-hidden">
+            <!-- Top bar -->
+            <nav class="navbar navbar-expand-lg topbar px-4 py-3">
+                <button class="btn-sidebar-toggle fs-5 d-flex align-items-center justify-content-center" id="sidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                <nav aria-label="breadcrumb" class="flex-grow-1 ms-3 d-none d-md-block">
+                    @await RenderSectionAsync("Breadcrumb", required: false)
+                </nav>
+                <div class="d-flex align-items-center ms-auto">
+                    <div class="dropdown">
+                        <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle text-dark"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="https://ui-avatars.com/api/?name=@(User.Identity!.Name)&background=e0e7ff&color=4338ca&rounded=true" alt="User" width="38" height="38" class="rounded-circle me-2 border">
+                            <span class="d-none d-sm-block fw-semibold" style="font-size: 0.9rem;">@User.Identity!.Name</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 rounded-3" style="min-width: 200px;">
+                            <li class="px-3 py-2">
+                                <span class="d-block text-muted small fw-semibold text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.05em;">Tài khoản</span>
+                                <span class="d-block fw-bold text-dark mt-1">@User.Identity!.Name</span>
+                            </li>
+                            <li><hr class="dropdown-divider mx-2"></li>
+                            <li>
+                                <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="/" method="post">
+                                    <button type="submit" class="dropdown-item text-danger py-2 d-flex align-items-center">
+                                        <i class="bi bi-box-arrow-right me-2"></i> Đăng xuất
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Alerts -->
+            <div class="px-4 pt-4">
+                @if (TempData["Success"] is string success)
+                {
+                    <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 d-flex align-items-center" role="alert">
+                        <i class="bi bi-check-circle-fill fs-5 me-3 text-success"></i>
+                        <div>@success</div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+                @if (TempData["Error"] is string error)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 d-flex align-items-center" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill fs-5 me-3 text-danger"></i>
+                        <div>@error</div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+            </div>
+
+            <!-- Page body -->
+            <main class="p-4">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+}
+else
+{
+    <main class="bg-light min-vh-100 d-flex flex-column align-items-center justify-content-center">
+        @RenderBody()
+    </main>
+}
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+
+@await RenderSectionAsync("Scripts", required: false)
+
+<script>
+    // Sidebar toggle
+    document.getElementById('sidebarToggle')?.addEventListener('click', function () {
+        const sidebar = document.getElementById('sidebar');
+        if (window.innerWidth <= 768) {
+            sidebar.classList.toggle('show');
+        } else {
+            sidebar.classList.toggle('collapsed');
+        }
+    });
+
+    // Notification badge
+    async function updateNotifBadge() {
+        try {
+            const res = await fetch('/Notifications/Notifications/UnreadCount');
+            if (res.ok) {
+                const data = await res.json();
+                const badge = document.getElementById('notif-badge');
+                if (badge) {
+                    if (data.count > 0) {
+                        badge.textContent = data.count;
+                        badge.classList.remove('d-none');
+                    } else {
+                        badge.classList.add('d-none');
+                    }
+                }
+            }
+        } catch (_) {}
+    }
+    updateNotifBadge();
+    setInterval(updateNotifBadge, 60000);
+</script>
+</body>
+</html>
