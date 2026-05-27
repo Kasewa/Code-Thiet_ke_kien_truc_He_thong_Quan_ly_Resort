@@ -59,7 +59,13 @@ namespace Resort.DataAccess
 
         public async Task<T> UpdateAsync(T entity)
         {
-            _dbSet.Update(entity);
+            // Fix: Nếu entity đã được tracked thì chỉ cần đánh dấu Modified
+            // thay vì gọi _dbSet.Update() sẽ throw "already being tracked"
+            var entry = _dbContext.Entry(entity);
+            if (entry.State == EntityState.Detached)
+                _dbSet.Update(entity);
+            else
+                entry.State = EntityState.Modified;
             return await Task.FromResult(entity);
         }
     }

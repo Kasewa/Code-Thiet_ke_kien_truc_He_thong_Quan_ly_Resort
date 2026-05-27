@@ -45,12 +45,32 @@ namespace Resort.Web.Areas.Repairs.Controllers
             var cache = await _masterData.GetMasterDataCacheAsync();
             ViewBag.Rooms = rooms;
             ViewBag.Priorities = cache.GetValueOrDefault("RepairPriority", new List<string>());
-            return View(new RepairRequest());
+
+            // Auto-generate Code gợi ý
+            var allRequests = await _repairOps.GetAllRepairRequestsAsync();
+            var nextCode = $"SC{(allRequests.Count + 1):D3}";
+
+            return View(new RepairRequest { Code = nextCode });
         }
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(RepairRequest request)
         {
+            // Auto-generate Code nếu bỏ trống
+            if (string.IsNullOrWhiteSpace(request.Code))
+            {
+                var allRequests = await _repairOps.GetAllRepairRequestsAsync();
+                request.Code = $"SC{(allRequests.Count + 1):D3}";
+                ModelState.Remove(nameof(request.Code));
+            }
+
+            // Priority không phải Required trong model — đặt default nếu rỗng
+            if (string.IsNullOrWhiteSpace(request.Priority))
+            {
+                request.Priority = RepairPriority.Normal;
+                ModelState.Remove(nameof(request.Priority));
+            }
+
             if (!ModelState.IsValid)
             {
                 ViewBag.Rooms = await _roomOps.GetAllRoomsAsync();

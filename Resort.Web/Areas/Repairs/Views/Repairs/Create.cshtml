@@ -2,7 +2,10 @@
 @{
     ViewData["Title"] = "Tạo yêu cầu sửa chữa";
     var rooms      = ViewBag.Rooms      as List<Resort.Model.Models.Room> ?? new List<Resort.Model.Models.Room>();
-    var priorities = ViewBag.Priorities as List<string>                   ?? new List<string>();
+    var priorities = ViewBag.Priorities as List<string> ?? new List<string>();
+    // Fallback nếu cache chưa warm
+    if (!priorities.Any())
+        priorities = new List<string> { "Urgent", "Normal", "Low" };
 }
 
 @section Breadcrumb {

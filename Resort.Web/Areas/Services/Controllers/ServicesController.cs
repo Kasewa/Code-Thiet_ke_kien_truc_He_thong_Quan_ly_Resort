@@ -35,7 +35,9 @@ namespace Resort.Web.Areas.Services.Controllers
         {
             var cache = await _masterData.GetMasterDataCacheAsync();
             ViewBag.ServiceTypes = cache.GetValueOrDefault("ServiceType", new List<string>());
-            return View(new Service());
+            var allServices = await _serviceOps.GetAllServicesAsync();
+            var nextSvcCode = $"DV{(allServices.Count + 1):D3}";
+            return View(new Service { Code = nextSvcCode });
         }
 
         [HttpPost, ValidateAntiForgeryToken]
@@ -81,8 +83,15 @@ namespace Resort.Web.Areas.Services.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(string id)
         {
-            await _serviceOps.DeleteServiceAsync(id);
-            TempData["Success"] = "Xóa dịch vụ thành công!";
+            try
+            {
+                await _serviceOps.DeleteServiceAsync(id);
+                TempData["Success"] = "Xóa dịch vụ thành công!";
+            }
+            catch (Exception)
+            {
+                TempData["Error"] = "Không thể xóa: dịch vụ này đã được sử dụng trong đặt phòng.";
+            }
             return RedirectToAction(nameof(Index));
         }
 

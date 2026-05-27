@@ -40,13 +40,25 @@ namespace Resort.Web.Areas.Rooms.Controllers
         {
             var cache = await _masterData.GetMasterDataCacheAsync();
             ViewBag.RoomTypes = cache.GetValueOrDefault("RoomType", new List<string>());
-            return View(new Room());
+
+            // Auto-generate Code gợi ý
+            var allRooms = await _roomOps.GetAllRoomsAsync();
+            var nextCode = $"P{(allRooms.Count + 1):D3}";
+
+            return View(new Room { Code = nextCode, Capacity = 2 });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Room room)
         {
+            if (string.IsNullOrWhiteSpace(room.Code))
+            {
+                var allRooms = await _roomOps.GetAllRoomsAsync();
+                room.Code = $"P{(allRooms.Count + 1):D3}";
+                ModelState.Remove(nameof(room.Code));
+            }
+
             if (!ModelState.IsValid)
             {
                 var cache = await _masterData.GetMasterDataCacheAsync();
@@ -113,8 +125,18 @@ namespace Resort.Web.Areas.Rooms.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(string id)
         {
-            await _roomOps.DeleteRoomAsync(id);
-            TempData["Success"] = "Xóa phòng thành công!";
+            try
+            {
+                var success = await _roomOps.DeleteRoomAsync(id);
+                if (success)
+                    TempData["Success"] = "Xóa phòng thành công!";
+                else
+                    TempData["Error"] = "Không tìm thấy phòng.";
+            }
+            catch (Exception)
+            {
+                TempData["Error"] = "Không thể xóa: phòng này đã có lịch sử đặt phòng hoặc yêu cầu sửa chữa.";
+            }
             return RedirectToAction(nameof(Index));
         }
 

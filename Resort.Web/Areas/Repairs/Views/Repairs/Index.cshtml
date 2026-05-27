@@ -83,7 +83,7 @@
                             <td class="text-center">
                                 @if (r.Status == "Pending")
                                 {
-                                    <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                    <form asp-area="Repairs" asp-controller="Repairs" asp-action="UpdateStatus" method="post" class="d-inline">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="id" value="@r.Id" />
                                         <input type="hidden" name="status" value="InProgress" />
@@ -94,7 +94,7 @@
                                 }
                                 @if (r.Status == "InProgress")
                                 {
-                                    <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                    <form asp-area="Repairs" asp-controller="Repairs" asp-action="UpdateStatus" method="post" class="d-inline">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="id" value="@r.Id" />
                                         <input type="hidden" name="status" value="Completed" />

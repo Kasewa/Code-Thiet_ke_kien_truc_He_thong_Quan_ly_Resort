@@ -28,11 +28,11 @@
         <div class="d-flex gap-2">
             @if (b.Status == "Pending" || b.Status == "Confirmed")
             {
-                <form asp-action="CheckIn" asp-route-id="@b.Id" method="post">
+                <form asp-area="Bookings" asp-action="CheckIn" asp-route-id="@b.Id" method="post">
                     @Html.AntiForgeryToken()
                     <button class="btn btn-success"><i class="bi bi-box-arrow-in-right me-1"></i>Check-in</button>
                 </form>
-                <form asp-action="Cancel" asp-route-id="@b.Id" method="post">
+                <form asp-area="Bookings" asp-action="Cancel" asp-route-id="@b.Id" method="post">
                     @Html.AntiForgeryToken()
                     <button type="button" class="btn btn-outline-danger"
                             onclick="confirmDelete(this.closest('form'), 'Hủy đặt phòng này?')">
@@ -42,7 +42,7 @@
             }
             @if (b.Status == "CheckedIn")
             {
-                <form asp-action="CheckOut" asp-route-id="@b.Id" method="post">
+                <form asp-area="Bookings" asp-action="CheckOut" asp-route-id="@b.Id" method="post">
                     @Html.AntiForgeryToken()
                     <button class="btn btn-warning"><i class="bi bi-box-arrow-right me-1"></i>Check-out</button>
                 </form>
@@ -181,7 +181,7 @@
                     <h5 class="modal-title">Thêm dịch vụ</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form asp-action="AddService" method="post">
+                <form asp-area="Bookings" asp-action="AddService" method="post">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="bookingId" value="@b.Id" />
                     <div class="modal-body">

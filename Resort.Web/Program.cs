@@ -3,8 +3,14 @@ using Microsoft.EntityFrameworkCore;
 using Resort.Business.Interfaces;
 using Resort.Web.Configuration;
 using Resort.Web.Data;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Force invariant culture so DateTime binds correctly from HTML date inputs (yyyy-MM-dd)
+var cultureInfo = CultureInfo.InvariantCulture;
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -30,7 +36,10 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 builder.Services.AddOptions();
 builder.Services.Configure<ApplicationSettings>(builder.Configuration.GetSection("ApplicationSettings"));
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+});
 builder.Services.AddRazorPages();
 
 // Resort feature services (DI, cache, operations, navigation)

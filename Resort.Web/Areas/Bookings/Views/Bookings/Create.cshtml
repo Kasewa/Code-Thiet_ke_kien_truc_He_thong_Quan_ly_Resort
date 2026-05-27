@@ -60,12 +60,14 @@
                     </div>
                     <div class="col-md-6">
                         <label asp-for="CheckInDate" class="form-label">Ngày check-in <span class="text-danger">*</span></label>
-                        <input asp-for="CheckInDate" class="form-control" type="date" />
+                        <input asp-for="CheckInDate" class="form-control" type="date"
+                               value="@Model.CheckInDate.ToString("yyyy-MM-dd")" />
                         <span asp-validation-for="CheckInDate" class="text-danger small"></span>
                     </div>
                     <div class="col-md-6">
                         <label asp-for="CheckOutDate" class="form-label">Ngày check-out <span class="text-danger">*</span></label>
-                        <input asp-for="CheckOutDate" class="form-control" type="date" />
+                        <input asp-for="CheckOutDate" class="form-control" type="date"
+                               value="@Model.CheckOutDate.ToString("yyyy-MM-dd")" />
                         <span asp-validation-for="CheckOutDate" class="text-danger small"></span>
                     </div>
                     <div class="col-md-6">

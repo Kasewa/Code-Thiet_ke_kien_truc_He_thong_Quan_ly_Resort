@@ -34,10 +34,6 @@ namespace Resort.Web.Areas.Bookings.Controllers
                 ? await _bookingOps.GetAllBookingsAsync()
                 : await _bookingOps.GetBookingsByStatusAsync(status);
 
-            // Enrich with Guest and Room info
-            var guestIds = bookings.Select(b => b.GuestId).Distinct().ToList();
-            var roomIds = bookings.Select(b => b.RoomId).Distinct().ToList();
-
             var allGuests = await _guestOps.GetAllGuestsAsync();
             var allRooms = await _roomOps.GetAllRoomsAsync();
 
@@ -54,13 +50,37 @@ namespace Resort.Web.Areas.Bookings.Controllers
             var rooms = await _roomOps.GetAllRoomsAsync();
             ViewBag.Guests = guests;
             ViewBag.Rooms = rooms.Where(r => r.Status == RoomStatus.Available).ToList();
-            return View(new Booking { CheckInDate = DateTime.Today, CheckOutDate = DateTime.Today.AddDays(1) });
+
+            // Auto-generate Code gợi ý
+            var allBookings = await _bookingOps.GetAllBookingsAsync();
+            var nextCode = $"DP{(allBookings.Count + 1):D3}";
+
+            return View(new Booking
+            {
+                Code = nextCode,
+                CheckInDate = DateTime.Today,
+                CheckOutDate = DateTime.Today.AddDays(1)
+            });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Booking booking)
         {
+            // Auto-generate Code nếu bỏ trống
+            if (string.IsNullOrWhiteSpace(booking.Code))
+            {
+                var allBookings = await _bookingOps.GetAllBookingsAsync();
+                booking.Code = $"DP{(allBookings.Count + 1):D3}";
+                ModelState.Remove(nameof(booking.Code));
+            }
+
+            // Validate ngày
+            if (booking.CheckOutDate <= booking.CheckInDate)
+            {
+                ModelState.AddModelError(nameof(booking.CheckOutDate), "Ngày check-out phải sau ngày check-in.");
+            }
+
             if (!ModelState.IsValid)
             {
                 ViewBag.Guests = await _guestOps.GetAllGuestsAsync();
@@ -76,7 +96,7 @@ namespace Resort.Web.Areas.Bookings.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ModelState.AddModelError(string.Empty, "Tạo đặt phòng thất bại.");
+            ModelState.AddModelError(string.Empty, "Tạo đặt phòng thất bại. Vui lòng kiểm tra lại thông tin phòng.");
             ViewBag.Guests = await _guestOps.GetAllGuestsAsync();
             ViewBag.Rooms = (await _roomOps.GetAllRoomsAsync()).Where(r => r.Status == RoomStatus.Available).ToList();
             return View(booking);
@@ -92,7 +112,6 @@ namespace Resort.Web.Areas.Bookings.Controllers
             var bookingServices = await _bookingOps.GetBookingServicesAsync(id);
             var allServices = await _serviceOps.GetActiveServicesAsync();
 
-            // Build service name lookup for the view
             var serviceMap = allServices.ToDictionary(s => s.Id, s => s.Name);
 
             var vm = new BookingDetailsViewModel

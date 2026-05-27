@@ -39,13 +39,25 @@ namespace Resort.Web.Areas.Guests.Controllers
         {
             var cache = await _masterData.GetMasterDataCacheAsync();
             ViewBag.Nationalities = cache.GetValueOrDefault("Nationality", new List<string>());
-            return View(new Guest());
+
+            // Auto-generate Code gợi ý
+            var allGuests = await _guestOps.GetAllGuestsAsync();
+            var nextCode = $"KH{(allGuests.Count + 1):D3}";
+
+            return View(new Guest { Code = nextCode, Nationality = "Việt Nam" });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Guest guest)
         {
+            if (string.IsNullOrWhiteSpace(guest.Code))
+            {
+                var allGuests = await _guestOps.GetAllGuestsAsync();
+                guest.Code = $"KH{(allGuests.Count + 1):D3}";
+                ModelState.Remove(nameof(guest.Code));
+            }
+
             if (!ModelState.IsValid)
             {
                 var cache = await _masterData.GetMasterDataCacheAsync();
@@ -109,8 +121,18 @@ namespace Resort.Web.Areas.Guests.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(string id)
         {
-            await _guestOps.DeleteGuestAsync(id);
-            TempData["Success"] = "Xóa khách hàng thành công!";
+            try
+            {
+                var success = await _guestOps.DeleteGuestAsync(id);
+                if (success)
+                    TempData["Success"] = "Xóa khách hàng thành công!";
+                else
+                    TempData["Error"] = "Không tìm thấy khách hàng.";
+            }
+            catch (Exception)
+            {
+                TempData["Error"] = "Không thể xóa: khách hàng này đã có lịch sử đặt phòng.";
+            }
             return RedirectToAction(nameof(Index));
         }
     }

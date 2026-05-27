@@ -37,7 +37,9 @@ namespace Resort.Web.Areas.Staff.Controllers
             ViewBag.Departments = cache.GetValueOrDefault("Department", new List<string>());
             ViewBag.Positions = cache.GetValueOrDefault("Position", new List<string>());
             ViewBag.Shifts = cache.GetValueOrDefault("Shift", new List<string>());
-            return View(new StaffMember());
+            var allStaff = await _staffOps.GetAllStaffAsync();
+            var nextStaffCode = $"NV{(allStaff.Count + 1):D3}";
+            return View(new StaffMember { Code = nextStaffCode });
         }
 
         [HttpPost, ValidateAntiForgeryToken]

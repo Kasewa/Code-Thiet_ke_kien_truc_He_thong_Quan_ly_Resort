@@ -15,9 +15,11 @@ namespace Resort.Model.Models
         public string RoomId { get; set; } = string.Empty;
 
         [Required]
+        [DataType(DataType.Date)]
         public DateTime CheckInDate { get; set; }
 
         [Required]
+        [DataType(DataType.Date)]
         public DateTime CheckOutDate { get; set; }
 
         public DateTime? ActualCheckIn { get; set; }
