@@ -39,14 +39,17 @@ namespace Resort.Web.Areas.Administration.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddValue(MasterDataValue value)
+        public async Task<IActionResult> AddValue(MasterDataValue model) 
         {
-            value.CreatedBy = CurrentUserEmail;
-            value.UpdatedBy = CurrentUserEmail;
-            await _masterDataOps.InsertMasterValueAsync(value);
+            model.CreatedBy = CurrentUserEmail;
+            model.UpdatedBy = CurrentUserEmail;
+
+            await _masterDataOps.InsertMasterValueAsync(model);
             await _cacheOps.CreateMasterDataCacheAsync();
+
             TempData["Success"] = "Thêm giá trị thành công!";
-            return RedirectToAction(nameof(MasterDataValues), new { keyId = value.MasterDataKeyId });
+
+            return RedirectToAction(nameof(MasterDataValues), new { keyId = model.MasterDataKeyId });
         }
 
         [HttpPost, ValidateAntiForgeryToken]
